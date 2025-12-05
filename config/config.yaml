@@ -1,0 +1,39 @@
+# Circuit Breaker Configuration
+
+# HTTP Service Settings
+http:
+  port: 8080
+  timeout: 10s
+
+# Circuit Breaker Settings
+circuit_breaker:
+  # Maximum concurrent requests allowed in Half-Open state
+  max_requests: 3
+  
+  # Time interval to clear counts in Closed state (0 = never clear)
+  interval: 10s
+  
+  # How long to wait in Open state before trying Half-Open
+  timeout: 5s
+  
+  # Failure threshold configuration
+  failure_threshold:
+    # Minimum requests before evaluating
+    min_requests: 3
+    
+    # Failure ratio to trip circuit (0.0-1.0)
+    failure_ratio: 0.6
+    
+    # Consecutive failures to trip circuit
+    consecutive_failures: 5
+
+# Metrics Settings
+metrics:
+  enabled: true
+  port: 2112
+  path: /metrics
+
+# Logging
+logging:
+  level: info
+  format: json
