@@ -1,228 +1,240 @@
 # **🔨 Go Circuit Breaker**
 
-A comprehensive, thread-safe, and production-ready implementation of the **Circuit Breaker Pattern** in Go. Designed to build resilient microservices by preventing cascading failures and providing graceful degradation.
+Một triển khai toàn diện, an toàn cho luồng và sẵn sàng cho sản xuất của **Mẫu Circuit Breaker** trong Go. Được thiết kế để xây dựng các microservice có khả năng phục hồi bằng cách ngăn chặn các lỗi xếp tầng và cung cấp khả năng xuống cấp nhẹ nhàng.
 
-## **📋 Table of Contents**
+## **📋 Mục lục**
 
-* [Overview](https://www.google.com/search?q=%23overview)  
-* [Architecture](https://www.google.com/search?q=%23architecture)  
-* [Installation](https://www.google.com/search?q=%23installation)  
-* [Quick Start](https://www.google.com/search?q=%23quick-start)  
-* [Configuration](https://www.google.com/search?q=%23configuration)  
-* [Advanced Concepts](https://www.google.com/search?q=%23advanced-concepts)  
-* [Metrics & Monitoring](https://www.google.com/search?q=%23metrics--monitoring)  
-* [Internals & Performance](https://www.google.com/search?q=%23internals--performance)  
-* [Best Practices](https://www.google.com/search?q=%23best-practices)  
-* [Roadmap](https://www.google.com/search?q=%23roadmap)
+* [Tổng quan](#tổng-quan)
+* [Kiến trúc](#kiến-trúc)
+* [Cài đặt](#cài-đặt)
+* [Bắt đầu nhanh](#bắt-đầu-nhanh)
+* [Cấu hình](#cấu-hình)
+* [Các khái niệm nâng cao](#các-khái-niệm-nâng-cao)
+* [Số liệu & Giám sát](#số-liệu--giám-sát)
+* [Bên trong & Hiệu suất](#bên-trong--hiệu-suất)
+* [Các phương pháp hay nhất](#các-phương-pháp-hay-nhất)
+* [Lộ trình & Trạng thái](#lộ-trình--trạng-thái)
+* [Tham khảo](#tham-khảo)
+* [Giấy phép](#giấy-phép)
 
-## **🎯 Overview**
+## **🎯 Tổng quan**
 
-The Circuit Breaker pattern prevents an application from repeatedly attempting an operation that's likely to fail, allowing it to continue without waiting for the fault to be fixed or wasting CPU cycles.
+Mẫu Circuit Breaker ngăn một ứng dụng liên tục cố gắng thực hiện một thao tác có khả năng thất bại, cho phép nó tiếp tục mà không cần chờ lỗi được khắc phục hoặc lãng phí chu kỳ CPU.
 
-### **Key Features**
+### **Các tính năng chính**
 
-* ✅ **Three States**: Closed, Open, Half-Open state management.  
-* ✅ **Thread-Safe**: Fully safe for concurrent use in high-throughput systems.  
-* ✅ **Sliding Window**: Time-based failure rate calculation for accuracy.  
-* ✅ **Zero Overhead**: Extremely low latency (\<100ns) and zero-allocation operations in the hot path.  
-* ✅ **Observability**: Built-in Prometheus metrics.  
-* ✅ **Flexible Strategies**: Trip on consecutive failures, error rate, or slow calls.  
-* ✅ **Context Aware**: Support for context.Context (cancellation/timeout).
+* ✅ **Ba trạng thái**: Quản lý trạng thái Closed, Open, Half-Open.
+* ✅ **An toàn cho luồng**: Hoàn toàn an toàn để sử dụng đồng thời trong các hệ thống có thông lượng cao.
+* ✅ **Cửa sổ trượt**: Tính toán tỷ lệ lỗi dựa trên thời gian để đảm bảo độ chính xác.
+* ✅ **Không có chi phí**: Độ trễ cực thấp (<100ns) và các hoạt động không phân bổ trong đường dẫn nóng.
+* ✅ **Khả năng quan sát**: Tích hợp sẵn số liệu Prometheus.
+* ✅ **Chiến lược linh hoạt**: Ngắt mạch khi có lỗi liên tiếp, tỷ lệ lỗi hoặc các cuộc gọi chậm.
+* ✅ **Nhận biết ngữ cảnh**: Hỗ trợ `context.Context` (hủy/hết thời gian).
 
-## **🏗️ Architecture**
+## **🏗️ Kiến trúc**
 
-### **State Machine**
+### **Máy trạng thái**
 
-The circuit breaker operates as a finite state machine:  
+Bộ ngắt mạch hoạt động như một máy trạng thái hữu hạn:
 ```
                 ┌─────────────┐  
-                │   CLOSED    │ ← Normal operation  
-                │ (All pass)  │  
+                │   CLOSED    │ ← Hoạt động bình thường
+                │ (Tất cả đều qua)  │  
                 └──────┬──────┘  
                        │  
-            Failure    │    Success rate OK  
-           threshold   │  
-            reached    │  
+            Ngưỡng     │    Tỷ lệ thành công OK
+           lỗi         │  
+            đạt        │  
                        │  
                 ┌──────▼──────┐  
-                │    OPEN     │ ← Fast-fail mode  
-                │ (All fail)  │  
+                │    OPEN     │ ← Chế độ thất bại nhanh
+                │ (Tất cả đều thất bại)  │  
                 └──────┬──────┘  
                        │  
-            Timeout    │  
-            expires    │  
+            Hết        │  
+            thời gian  │  
                        │  
                 ┌──────▼──────────┐  
-                │   HALF-OPEN     │ ← Testing recovery  
-                │ (Limited pass)  │  
+                │   HALF-OPEN     │ ← Thử nghiệm phục hồi
+                │ (Giới hạn qua)  │  
                 └──────┬──────────┘  
                        │  
             ┌──────────┴──────────┐  
             │                     │  
-     Success │                │ Any  
-    threshold│                │ failure  
-      met    │                │  
+     Ngưỡng  │                │ Bất kỳ
+    thành công│               │ lỗi nào
+      đạt    │                │  
             │                     │  
         ┌───▼──┐              ┌──▼───┐  
         │CLOSED│              │ OPEN │  
         └──────┘              └──────┘
 ```
-![Pattern CircuitBreaker](/home/ntbankey/Documents/LEARNING-SYSTEM/05-PROJECTS/03-distributed-systems/circuit-breaker/Pattern.png)
-1. **🟢 CLOSED**: Requests pass through. Success/Failure counts are tracked.  
-2. **🔴 OPEN**: Request fails immediately with ErrCircuitOpen. No external calls are made.  
-3. **🟡 HALF-OPEN**: After a timeout, a limited number of "probe" requests are allowed to check if the underlying service has recovered.
+![Mẫu CircuitBreaker](Pattern.png)
+1.  **🟢 CLOSED**: Các yêu cầu đi qua. Số lần thành công/thất bại được theo dõi.
+2.  **🔴 OPEN**: Yêu cầu thất bại ngay lập tức với `ErrCircuitOpen`. Không có cuộc gọi bên ngoài nào được thực hiện.
+3.  **🟡 HALF-OPEN**: Sau một khoảng thời gian chờ, một số lượng giới hạn các yêu cầu "thăm dò" được cho phép để kiểm tra xem dịch vụ cơ bản đã phục hồi chưa.
 
-## **📦 Installation**
+## **📦 Cài đặt**
 
-To get started, clone the repository to run the examples or use go get to include it in your project.  
-\# Option 1: Integrate into your Go project  
-go get \[github.com/NTbankey1/circuit-breaker\](https://github.com/NTbankey1/circuit-breaker)
+Để bắt đầu, hãy sao chép kho lưu trữ để chạy các ví dụ hoặc sử dụng `go get` để đưa nó vào dự án của bạn.
+```bash
+# Tùy chọn 1: Tích hợp vào dự án Go của bạn
+go get github.com/NTbankey1/circuit-breaker
 
-\# Option 2: Clone and run examples (HTTP client example)  
-git clone \[https://github.com/NTbankey1/circuit-breaker\](https://github.com/NTbankey1/circuit-breaker)  
+# Tùy chọn 2: Sao chép và chạy các ví dụ (ví dụ máy khách HTTP)
+git clone https://github.com/NTbankey1/circuit-breaker
 cd circuit-breaker
 
-\# Download dependencies  
+# Tải xuống các phụ thuộc
 go mod download
 
-\# Run the HTTP example (assuming it's in cmd/http-example/main.go)  
+# Chạy ví dụ HTTP (giả sử nó nằm trong cmd/http-example/main.go)
 go run cmd/http-example/main.go
+```
 
-## **🚀 Quick Start**
+## **🚀 Bắt đầu nhanh**
 
-### **Basic Usage**
+### **Sử dụng cơ bản**
 
+```go
 package main
 
 import (  
     "fmt"  
     "time"  
-    "\[github.com/NTbankey1/circuit-breaker\](https://github.com/NTbankey1/circuit-breaker)" // Import the library  
+    "github.com/NTbankey1/circuit-breaker" // Nhập thư viện
 )
 
 func main() {  
-    // 1\. Configure the circuit breaker  
+    // 1\. Cấu hình bộ ngắt mạch
     config := circuitbreaker.Config{  
-        MaxRequests: 3,               // Allow 3 requests in Half-Open  
-        Timeout:     5 \* time.Second, // Cooldown period before trying to recover  
+        MaxRequests: 3,               // Cho phép 3 yêu cầu trong Half-Open
+        Timeout:     5 * time.Second, // Thời gian hồi chiêu trước khi thử phục hồi
         ReadyToTrip: func(counts circuitbreaker.Counts) bool {  
-            // Trip if 5 consecutive failures occur  
-            return counts.ConsecutiveFailures \> 5  
+            // Ngắt nếu xảy ra 5 lỗi liên tiếp
+            return counts.ConsecutiveFailures > 5  
         },  
     }  
       
-    // 2\. Create the instance  
+    // 2\. Tạo phiên bản
     cb := circuitbreaker.New("my-service", config)  
       
-    // 3\. Execute code protected by the breaker  
+    // 3\. Thực thi mã được bảo vệ bởi bộ ngắt mạch
     err := cb.Execute(func() error {  
-        // Your logic here (e.g., HTTP call, DB query)  
+        // Logic của bạn ở đây (ví dụ: cuộc gọi HTTP, truy vấn DB)
         return callExternalService()  
     })  
       
-    if err \== circuitbreaker.ErrCircuitOpen {  
-        // Handle the open state (e.g., return cached data)  
-        fmt.Println("Circuit is open, skipping request")  
-    } else if err \!= nil {  
-        fmt.Printf("Request failed: %v\\n", err)  
+    if err == circuitbreaker.ErrCircuitOpen {  
+        // Xử lý trạng thái mở (ví dụ: trả về dữ liệu được lưu trong bộ nhớ cache)
+        fmt.Println("Mạch đang mở, bỏ qua yêu cầu")  
+    } else if err != nil {  
+        fmt.Printf("Yêu cầu thất bại: %v\n", err)  
     }  
-}
+} 
+```
 
-## **⚙️ Configuration**
+## **⚙️ Cấu hình**
 
-The library offers granular control over behavior via the Config struct.  
+Thư viện cung cấp khả năng kiểm soát chi tiết hành vi thông qua cấu trúc `Config`.
+```go
 config := circuitbreaker.Config{  
-    // \--- Half-Open State \---  
-    // Number of requests allowed to pass when in Half-Open state.  
+    // \--- Trạng thái Half-Open \---  
+    // Số lượng yêu cầu được phép đi qua khi ở trạng thái Half-Open.
     MaxRequests: 3,  
       
-    // \--- Closed State \---  
-    // Interval to reset counts in Closed state (if not using sliding window).  
-    Interval: 10 \* time.Second,  
+    // \--- Trạng thái Closed \---  
+    // Khoảng thời gian để đặt lại số đếm trong trạng thái Closed (nếu không sử dụng cửa sổ trượt).
+    Interval: 10 * time.Second,  
       
-    // \--- Open State \---  
-    // Time to wait before switching from Open to Half-Open.  
-    Timeout: 60 \* time.Second,  
+    // \--- Trạng thái Open \---  
+    // Thời gian chờ trước khi chuyển từ Open sang Half-Open.
+    Timeout: 60 * time.Second,  
       
-    // \--- Failure Strategy \---  
-    // Function to determine when to trip the circuit.  
+    // \--- Chiến lược lỗi \---  
+    // Hàm để xác định khi nào cần ngắt mạch.
     ReadyToTrip: func(counts circuitbreaker.Counts) bool {  
         failureRatio := float64(counts.TotalFailures) / float64(counts.Requests)  
-        // Trip if 5+ failures AND failure rate \>= 60%  
-        return counts.Requests \>= 10 && failureRatio \>= 0.6  
+        // Ngắt nếu có từ 5 lỗi trở lên VÀ tỷ lệ lỗi >= 60%
+        return counts.Requests >= 10 && failureRatio >= 0.6  
     },  
       
-    // \--- Callbacks \---  
+    // \--- Các lệnh gọi lại \---  
     OnStateChange: func(name string, from, to circuitbreaker.State) {  
-        log.Printf("Circuit \[%s\] changed state: %s → %s", name, from, to)  
+        log.Printf("Mạch [%s] đã thay đổi trạng thái: %s → %s", name, from, to)  
     },  
 }
+```
 
-### **Common Presets**
+### **Các cài đặt sẵn phổ biến**
 
-* **Conservative**: High threshold, short timeout (Prioritize Availability).  
-* **Aggressive**: Low threshold, long timeout (Prioritize System Protection).
+*   **Bảo thủ**: Ngưỡng cao, thời gian chờ ngắn (Ưu tiên tính khả dụng).
+*   **Tích cực**: Ngưỡng thấp, thời gian chờ dài (Ưu tiên bảo vệ hệ thống).
 
-## **📊 Metrics & Monitoring**
+## **Các khái niệm nâng cao**
 
-This library exports standard **Prometheus** metrics to help you visualize system health.  
-\# Example Metrics Output  
-circuit\_breaker\_requests\_total{name="my-service"} 150  
-circuit\_breaker\_failures\_total{name="my-service"} 30  
-circuit\_breaker\_state{name="my-service"} 0  \# 0=Closed, 1=Half-Open, 2=Open
+## **📊 Số liệu & Giám sát**
 
-### **Setup**
+Thư viện này xuất các số liệu **Prometheus** tiêu chuẩn để giúp bạn trực quan hóa tình trạng hệ thống.
+```
+# Ví dụ đầu ra số liệu
+circuit_breaker_requests_total{name="my-service"} 150  
+circuit_breaker_failures_total{name="my-service"} 30  
+circuit_breaker_state{name="my-service"} 0  # 0=Closed, 1=Half-Open, 2=Open
+```
 
-// Register metrics collector (pseudo-code)  
+### **Thiết lập**
+```go
+// Đăng ký bộ thu thập số liệu (mã giả)
 prometheus.MustRegister(circuitbreaker.NewCollector(cb))
+```
 
-## **🔬 Internals & Performance**
+## **🔬 Bên trong & Hiệu suất**
 
-### **Generation-Based State Machine**
+### **Máy trạng thái dựa trên thế hệ**
 
-To prevent Race Conditions without heavy locking, we use a Generation counter.  
-When a request starts, it captures the current Generation. If the circuit state changes (e.g., Closed → Open) while the request is processing, the result of that request is discarded regarding state transition logic because its generation is now stale.
+Để ngăn chặn các điều kiện tranh đua mà không cần khóa nặng, chúng tôi sử dụng bộ đếm Thế hệ.
+Khi một yêu cầu bắt đầu, nó sẽ ghi lại Thế hệ hiện tại. Nếu trạng thái mạch thay đổi (ví dụ: Closed → Open) trong khi yêu cầu đang được xử lý, kết quả của yêu cầu đó sẽ bị loại bỏ đối với logic chuyển đổi trạng thái vì thế hệ của nó hiện đã lỗi thời.
 
-### **Sliding Window Algorithm**
+### **Thuật toán cửa sổ trượt**
 
-We implement a sliding window to calculate failure rates accurately over time, rather than just absolute counts.  
-Time: ─────────────────────────────────────────────────►  
+Chúng tôi triển khai một cửa sổ trượt để tính toán tỷ lệ lỗi một cách chính xác theo thời gian, thay vì chỉ là số đếm tuyệt đối.
+```
+Thời gian: ─────────────────────────────────────────────────►  
       │   B1   │   B2   │   B3   │   B4   │   B5   │  
       │ 2F 3S │ 1F 4S │ 0F 5S │ 3F 2S │ 1F 4S │
+```
 
-### **Benchmarks**
+### **Điểm chuẩn**
 
-The implementation is optimized for the hot path.  
-BenchmarkCircuitBreaker\_Closed    12,330,307    95.43 ns/op    0 B/op    0 allocs/op  
-BenchmarkCircuitBreaker\_Open      25,189,135    47.23 ns/op    0 B/op    0 allocs/op
+Việc triển khai được tối ưu hóa cho đường dẫn nóng.
+```
+BenchmarkCircuitBreaker_Closed    12,330,307    95.43 ns/op    0 B/op    0 allocs/op  
+BenchmarkCircuitBreaker_Open      25,189,135    47.23 ns/op    0 B/op    0 allocs/op
+```
 
-## **✅ Best Practices**
+## **✅ Các phương pháp hay nhất**
 
-1. **Always Define Fallbacks**: Never let a ErrCircuitOpen bubble up to the user without handling it (e.g., return default data, cached response, or a friendly error).  
-2. **Isolate Circuits**: Do not share a single circuit breaker instance across different downstream services. Create one for AuthService, one for PaymentService, etc.  
-3. **Tune Timeouts**: The Timeout (Open → Half-Open) should be long enough for the downstream service to actually recover.  
-4. **Monitor**: Set up alerts for circuit\_breaker\_state changes. A flapping circuit (constantly switching states) indicates an unstable dependency.
+1.  **Luôn xác định các phương án dự phòng**: Không bao giờ để `ErrCircuitOpen` nổi lên cho người dùng mà không xử lý nó (ví dụ: trả về dữ liệu mặc định, phản hồi được lưu trong bộ nhớ cache hoặc một lỗi thân thiện).
+2.  **Cách ly các mạch**: Không chia sẻ một phiên bản bộ ngắt mạch duy nhất trên các dịch vụ hạ nguồn khác nhau. Tạo một cho AuthService, một cho PaymentService, v.v.
+3.  **Điều chỉnh thời gian chờ**: `Timeout` (Open → Half-Open) phải đủ dài để dịch vụ hạ nguồn thực sự phục hồi.
+4.  **Giám sát**: Thiết lập cảnh báo cho các thay đổi `circuit_breaker_state`. Một mạch dao động (liên tục chuyển đổi trạng thái) cho thấy một phụ thuộc không ổn định.
 
-## **🚧 Roadmap & Status**
+## **🚧 Lộ trình & Trạng thái**
 
-* $$x $$  
-  **Core**: Closed/Open/Half-Open states  
-* $$x $$  
-  **Concurrency**: Thread-safe Mutex implementation  
-* $$x $$  
-  **Context**: ExecuteWithContext support  
-* $$x $$  
-  **Sliding Window**: Accurate rate calculation  
-* $$x $$  
-  **Middleware**: HTTP Client/Server wrappers  
-* **Distributed**: Redis-based state sharing  
-* **Adaptive**: Automatic threshold tuning
+- [x] **Cốt lõi**: Các trạng thái Closed/Open/Half-Open
+- [x] **Đồng thời**: Triển khai Mutex an toàn cho luồng
+- [x] **Ngữ cảnh**: Hỗ trợ `ExecuteWithContext`
+- [x] **Cửa sổ trượt**: Tính toán tỷ lệ chính xác
+- [x] **Phần mềm trung gian**: Trình bao bọc Máy khách/Máy chủ HTTP
+- [ ] **Phân tán**: Chia sẻ trạng thái dựa trên Redis
+- [ ] **Thích ứng**: Tự động điều chỉnh ngưỡng
 
-## **📖 References**
+## **📖 Tham khảo**
 
-* [Martin Fowler \- Circuit Breaker](https://martinfowler.com/bliki/CircuitBreaker.html)  
-* [Microsoft \- Cloud Design Patterns](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker)
+*   [Martin Fowler - Circuit Breaker](https://martinfowler.com/bliki/CircuitBreaker.html)
+*   [Microsoft - Các mẫu thiết kế đám mây](https://learn.microsoft.com/en-us/azure/architecture/patterns/circuit-breaker)
 
-## **📄 License**
+## **📄 Giấy phép**
 
-This project is licensed under the MIT License \- see the [LICENSE](https://www.google.com/search?q=LICENSE) file for details.
+Dự án này được cấp phép theo Giấy phép MIT - xem tệp [LICENSE](LICENSE) để biết chi tiết.
