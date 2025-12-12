@@ -34,6 +34,7 @@ The Circuit Breaker pattern prevents an application from repeatedly attempting a
 ### **State Machine**
 
 The circuit breaker operates as a finite state machine:  
+```
                 ┌─────────────┐  
                 │   CLOSED    │ ← Normal operation  
                 │ (All pass)  │  
@@ -65,6 +66,7 @@ The circuit breaker operates as a finite state machine:
         ┌───▼──┐              ┌──▼───┐  
         │CLOSED│              │ OPEN │  
         └──────┘              └──────┘
+```
 ![Pattern CircuitBreaker](/home/ntbankey/Documents/LEARNING-SYSTEM/05-PROJECTS/03-distributed-systems/circuit-breaker/Pattern.png)
 1. **🟢 CLOSED**: Requests pass through. Success/Failure counts are tracked.  
 2. **🔴 OPEN**: Request fails immediately with ErrCircuitOpen. No external calls are made.  
