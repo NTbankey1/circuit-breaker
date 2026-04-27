@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #F7F5F2;
+  --color-surface-dim: #E8E4DF;
+  --color-surface-bright: #FFFFFF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F7F5F2;
+  --color-surface-container: #E8E4DF;
+  --color-surface-container-high: #D1C7BD;
+  --color-surface-container-highest: #1A1A1A;
+  --color-on-surface: #1A1A1A;
+  --color-on-surface-variant: rgba(26, 26, 26, 0.6);
+  --color-inverse-surface: #1A1A1A;
+  --color-inverse-on-surface: #F7F5F2;
+  --color-outline: rgba(26, 26, 26, 0.2);
+  --color-outline-variant: rgba(26, 26, 26, 0.08);
+  --color-surface-tint: #1A1A1A;
+  --color-primary: #1A1A1A;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #D1C7BD;
+  --color-on-primary-container: #1A1A1A;
+  --color-inverse-primary: #D1C7BD;
+  --color-secondary: #000000;
+  --color-on-secondary: #FFFFFF;
+  --color-secondary-container: #E8E4DF;
+  --color-on-secondary-container: #1A1A1A;
+  --color-tertiary: #1A1A1A;
+  --color-on-tertiary: #FFFFFF;
+  --color-tertiary-container: #E8E4DF;
+  --color-on-tertiary-container: #1A1A1A;
+  --color-error: #BA1A1A;
+  --color-on-error: #FFFFFF;
+  --color-error-container: #FFDAD6;
+  --color-on-error-container: #93000A;
+  --color-primary-fixed: #E8E4DF;
+  --color-primary-fixed-dim: #D1C7BD;
+  --color-on-primary-fixed: #1A1A1A;
+  --color-on-primary-fixed-variant: #1A1A1A;
+  --color-secondary-fixed: #E8E4DF;
+  --color-secondary-fixed-dim: #D1C7BD;
+  --color-on-secondary-fixed: #1A1A1A;
+  --color-on-secondary-fixed-variant: #000000;
+  --color-tertiary-fixed: #F7F5F2;
+  --color-tertiary-fixed-dim: #E8E4DF;
+  --color-on-tertiary-fixed: #1A1A1A;
+  --color-on-tertiary-fixed-variant: #1A1A1A;
+  --color-background: #F7F5F2;
+  --color-on-background: #1A1A1A;
+  --color-surface-variant: #E8E4DF;
+
+  /* Utility Colors for Dashboard & Status */
+  --color-blue-500: #3B82F6;
+  --color-blue-600: #2563EB;
+  --color-emerald-500: #10B981;
+  --color-emerald-600: #059669;
+  --color-amber-500: #F59E0B;
+  --color-amber-600: #D97706;
+  --color-violet-500: #8B5CF6;
+  --color-violet-600: #7C3AED;
+  --color-red-500: #EF4444;
+  --color-red-600: #DC2626;
+  
+  --font-display-lg: 'Playfair Display', serif;
+  --font-headline-md: 'Playfair Display', serif;
+  --font-title-sm: 'Playfair Display', serif;
+  --font-body-md: 'Inter', sans-serif;
+  --font-body-sm: 'Inter', sans-serif;
+  --font-data-mono: 'JetBrains Mono', monospace;
+  --font-label-caps: 'Inter', sans-serif;
+  
+  --text-display-lg: 32px;
+  --text-display-lg--line-height: 40px;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-lg--font-weight: 700;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--letter-spacing: -0.01em;
+  --text-headline-md--font-weight: 600;
+  --text-title-sm: 18px;
+  --text-title-sm--line-height: 24px;
+  --text-title-sm--font-weight: 600;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+  --text-data-mono: 14px;
+  --text-data-mono--line-height: 20px;
+  --text-data-mono--letter-spacing: 0.01em;
+  --text-data-mono--font-weight: 500;
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 16px;
+  --text-label-caps--letter-spacing: 0.05em;
+  --text-label-caps--font-weight: 700;
+  
+  --radius-sm: 0px;
+  --radius-DEFAULT: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+  
+  --spacing-base: 4px;
+  --spacing-container-padding: 24px;
+  --spacing-gutter: 16px;
+  --spacing-stack-sm: 8px;
+  --spacing-stack-md: 16px;
+  --spacing-stack-lg: 32px;
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+  body {
+  -webkit-tap-highlight-color: transparent;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ─── Custom Scrollbar ───────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(26, 26, 26, 0.15);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 26, 26, 0.35);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.1);
+  border-radius: 999px;
+}
+
+/* ─── Leaflet Map Overrides ──────────────────────────────────────────── */
+.leaflet-container {
+  background: #0A0A0A;
+}
+.leaflet-control-zoom {
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 4px !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom a {
+  background: rgba(10,10,10,0.9) !important;
+  color: rgba(255,255,255,0.6) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+.leaflet-control-zoom a:hover {
+  background: rgba(30,30,30,0.9) !important;
+  color: #fff !important;
+}
+.leaflet-control-attribution {
+  background: rgba(0,0,0,0.5) !important;
+  color: rgba(255,255,255,0.3) !important;
+  font-size: 9px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+.leaflet-control-attribution a {
+  color: rgba(255,255,255,0.4) !important;
+}
+.leaflet-tooltip {
+  background: rgba(10,10,10,0.95) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 4px !important;
+  color: #fff !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+  white-space: nowrap;
+}
+.leaflet-tooltip::before {
+  border-top-color: rgba(255,255,255,0.1) !important;
+}
+
+/* ─── Keyframes ──────────────────────────────────────────────────────── */
+@keyframes ant-path {
+  from { stroke-dashoffset: 20; }
+  to   { stroke-dashoffset: 0;  }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+  50%       { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+}
+
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes grid-fade {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes counter-up {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0;  }
+}
+
+/* ─── Utility Classes ────────────────────────────────────────────────── */
+.animate-ant-path {
+  animation: ant-path 1.5s linear infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-scan {
+  animation: scan-line 3s linear infinite;
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.08) 50%, transparent 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ─── Typography Helpers ─────────────────────────────────────────────── */
+.font-serif { font-family: 'Playfair Display', serif; }
+.font-mono  { font-family: 'JetBrains Mono', monospace; }
+
+/* ─── Glass Effect ───────────────────────────────────────────────────── */
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.glass-dark {
+  background: rgba(10,10,10,0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
