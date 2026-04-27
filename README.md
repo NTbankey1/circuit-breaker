@@ -1,7 +1,7 @@
 # LogiSense AI: Nền Tảng Tối Ưu Logistics Dựa Trên AI & Heuristic
 
 <div align="center">
-  <img src="docs/assets/banner.png" alt="LogiSense AI Banner" width="100%">
+  <img src="docs/assets/home.png" alt="LogiSense AI Home" width="100%">
   <br />
   <p align="center">
     <b>Giải pháp quản lý vận tải thông minh tích hợp AdaBoost Regressor & Thuật toán A*</b>
@@ -17,13 +17,36 @@
 
 ---
 
-## 🌟 Điểm Nhấn Công Nghệ
+## 🚀 Tổng Quan Dự Án
 
-**LogiSense AI** không chỉ là một ứng dụng quản lý đơn thuần, mà là một sản phẩm kỹ thuật cao cấp kết hợp giữa **Machine Learning** và **Operations Research**:
+**LogiSense AI** là giải pháp phần mềm thông minh giải quyết các thách thức phức tạp trong logistics hiện đại bằng cách kết hợp **Machine Learning** và **Operations Research**. Hệ thống tập trung vào tối ưu hóa thời gian giao hàng (ETA) và lộ trình di chuyển của shipper.
 
-- **Dự đoán ETA thông minh:** Sử dụng thuật toán **AdaBoost** (Ensemble Learning) để học từ hàng triệu điểm dữ liệu giao thông, giúp dự đoán thời gian giao hàng với sai số (MAE) cực thấp.
-- **Tối ưu lộ trình đa tầng:** Kết hợp **K-Means Clustering** để phân vùng khu vực và **A* Search** (với heuristic từ AI) để sắp xếp thứ tự giao hàng tối ưu nhất.
-- **Kiến trúc Hiệu năng cao:** Hệ thống được tối ưu hóa cho các bài toán thời gian thực với độ trễ cực thấp.
+## 📸 Giao Diện Ứng Dụng (UI Showcase)
+
+### 📊 Dashboard Vận Hành
+Tổng quan về các chỉ số KPI, số lượng đơn hàng và trạng thái shipper trong thời gian thực.
+![Dashboard](docs/assets/dashboard.png)
+
+### 📍 Tối Ưu Hóa Lộ Trình
+Giao diện chính để phân cụm đơn hàng và tìm kiếm đường đi tối ưu bằng thuật toán A* kết hợp AI Heuristic.
+![Optimization](docs/assets/optimization.png)
+
+### 📦 Quản Lý Đơn Hàng
+Theo dõi danh sách đơn hàng, trạng thái và ưu tiên xử lý.
+![Orders](docs/assets/orders.png)
+
+### 🖥️ Giám Sát Thời Gian Thực
+Theo dõi vị trí và tiến độ giao hàng của từng shipper trên bản đồ.
+![Monitor](docs/assets/monitor.png)
+
+### 👤 Cá Nhân Hóa & Cấu Hình
+Quản lý hồ sơ người dùng và các thiết lập hệ thống.
+<div align="center">
+  <img src="docs/assets/profile.png" width="49%" />
+  <img src="docs/assets/settings.png" width="49%" />
+</div>
+
+---
 
 ## ⚙️ Quy Trình Vận Hành (System Workflow)
 
@@ -47,7 +70,6 @@ Dự án được triển khai với các tiêu chuẩn kỹ thuật của một
 1. **Singleton AI Service:** Model AdaBoost được nạp một lần duy nhất vào bộ nhớ (In-memory) để đảm bảo tốc độ inference < 10ms.
 2. **Threaded Connection Pooling:** Sử dụng `ThreadedConnectionPool` cho PostgreSQL để xử lý đồng thời hàng trăm yêu cầu mà không gây nghẽn cổ chai dữ liệu.
 3. **Advanced Async/Sync Handling:** Kết hợp thông minh giữa `async def` cho các I/O tasks và `def` (Thread Pool) cho các tác vụ CPU-bound (A*), giúp Event Loop luôn giải phóng.
-4. **Resilient Architecture:** Tích hợp Redis Cache để lưu trữ các kết quả dự đoán ETA cho các tọa độ lân cận, giảm tải cho CPU.
 
 ## 🛠️ Khởi Chạy Nhanh
 
@@ -60,15 +82,12 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-- **Giao diện:** [http://localhost:3000](http://localhost:3000)
-- **Tài liệu API:** [http://localhost:8000/docs](http://localhost:8000/docs)
-
 ## 📖 Tài Liệu Chuyên Sâu
 
-- 📑 [**Tổng quan hệ thống**](docs/overview.md) - Tầm nhìn và mục tiêu.
-- 📂 [**Cấu trúc dự án**](docs/project_structure.md) - Chi tiết các lớp (Layers).
-- 🧠 [**Kiến trúc ML & Heuristic**](docs/architecture.md) - Giải thích AdaBoost + A*.
-- 🚀 [**Hướng dẫn triển khai**](docs/setup.md) - Setup chi tiết và Debug.
+- 📑 [**Tổng quan hệ thống**](docs/overview.md)
+- 📂 [**Cấu trúc dự án**](docs/project_structure.md)
+- 🧠 [**Kiến trúc ML & Heuristic**](docs/architecture.md)
+- 🚀 [**Hướng dẫn triển khai**](docs/setup.md)
 
 ---
 <div align="center">
